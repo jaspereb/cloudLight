@@ -18,27 +18,38 @@ strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, 
 # Intialize the library (must be called once before other functions).
 strip.begin()
 
-[weatherState, intensity, temperature] = getWeather()
+#The ranges for intensity are:
+# storm - 0-2
+# rain - 0-4
 
-
-
-
-
-
-
-def setTemp(temperature):
-    global strip
-    
-    if(temperature > 0):
-        tempColor = temperature * 21
-        if(tempColor>255):
-            tempColor = 255
-        tempColor = Color(tempColor,0,0)
-    
-    else:
-        tempColor = (-temperature) * 21
-        if(tempColor>255):
-            tempColor = 255
-        tempColor = Color(0,0,tempColor)
+#Temperature is the mean in Celsius (will be zero for thunderstorms)
         
-    setColor(strip, tempColor, 0)
+#0 - sunny/cloudy
+#1 - rain
+#2 - weird
+#3 - storms
+#4 - extreme 
+
+weatherState = 0
+oldWeatherState = weatherState
+
+while(1):
+    [weatherState, intensity, temperature] = getWeather()
+    if(oldWeatherState != weatherState):
+        goDark()
+    
+    
+    if(weatherState == 4):
+        showExtreme()
+    elif(weatherState == 3):
+        showStorms()
+    elif(weatherState == 2):
+        showWeird()
+    elif(weatherState == 1):
+        showRain()
+    elif(weatherState == 0):
+        showTemp()
+        
+    time.sleep(60)
+
+

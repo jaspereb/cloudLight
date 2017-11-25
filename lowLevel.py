@@ -130,6 +130,8 @@ def theaterChaseRainbow(strip, wait_ms=50):
 			for i in range(0, strip.numPixels(), 3):
 				strip.setPixelColor(i+q, 0)
 
+def goDark(strip):
+    setColor(strip, Color(0,0,0),0)
 
 # Main program logic follows:
 if __name__ == '__main__':

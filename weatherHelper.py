@@ -1,4 +1,5 @@
 from urllib2 import Request, urlopen, URLError
+from lowLevel import *
 import json
 import time
 import datetime
@@ -101,4 +102,39 @@ def getWeather():
          
     #    print('Weather at time '  + ' is:')
     #    print(utc_dt)    
+         
+# Weather Display Functions -------------
+def showExtreme(strip):
+    
+    setColor(strip, Color(255,0,0),0)
+    time.sleep(0.5)
+    goDark(strip)
+    time.sleep(0.5)
+    
+def showRain(strip,intensity):
+    return
+    
+def showStorms(strip,intensity):
+    return
+    
+def showTemp(strip,temperature):
+    
+    if(temperature > 0):
+        tempColor = temperature * 16
+        if(tempColor>127):
+            tempColor = 127
+        
+        tempColor = Color(128 + tempColor,0,128-tempColor)
+    
+    else:
+        tempColor = (-1*temperature) * 16
+        if(tempColor>127):
+            tempColor = 127
+        
+        tempColor = Color(128 - tempColor,0,128 + tempColor)
+        
+    setColor(strip, tempColor, 0)
+    
+
+    
         
