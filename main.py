@@ -36,7 +36,7 @@ oldWeatherState = weatherState
 while(1):
     [weatherState, intensity, temperature] = getWeather()
     if(oldWeatherState != weatherState):
-        goDark()
+        goDark(strip)
     
     
     if(weatherState == 4):
