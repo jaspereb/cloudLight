@@ -32,6 +32,7 @@ strip.begin()
 
 weatherState = 0
 oldWeatherState = weatherState
+intensity = 0
 
 while(1):
     [weatherState, intensity, temperature] = getWeather()
@@ -40,15 +41,20 @@ while(1):
     
     
     if(weatherState == 4):
-        showExtreme()
+        print("Showing Extreme")
+        showExtreme(strip)
     elif(weatherState == 3):
-        showStorms()
+        print("Showing Storms")
+        showStorms(strip, intensity)
     elif(weatherState == 2):
-        showWeird()
+        print("Showing Weird Weather")
+        showWeird(strip)
     elif(weatherState == 1):
-        showRain()
+        print("Showing Rain")
+        showRain(strip, intensity)
     elif(weatherState == 0):
-        showTemp()
+        print("Showing Temperature")
+        showTemp(strip, temperature)
         
     time.sleep(60)
 

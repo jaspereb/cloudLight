@@ -50,9 +50,6 @@ def getWeather():
     
     for hourly in range(0,len(weather)):
         currentWeather = weather[hourly]
-        currtemp = currentWeather['main']['temp']-273.15
-        if(currtemp > temp):
-            temp = currtemp
             
         #Calculate if current weather period is <12 hours away (time is in UTC)
         if (currentWeather['dt'] - time.time()) < 43200:
@@ -62,6 +59,10 @@ def getWeather():
             print("ignoring weather")
             print(currentWeather['dt_txt'])
             continue
+            
+        currtemp = currentWeather['main']['temp']-273.15
+        if(currtemp > temp):
+            temp = currtemp
         
         IDCode = currentWeather['weather'][0]['id']
         IDFirst = IDCode/100
@@ -118,20 +119,20 @@ def showStorms(strip,intensity):
     return
     
 def showTemp(strip,temperature):
-    
+    print('Displaying temperature difference of: ' + str(temperature))
     if(temperature > 0):
         tempColor = temperature * 16
         if(tempColor>127):
             tempColor = 127
         
-        tempColor = Color(128 + tempColor,0,128-tempColor)
+        tempColor = Color(int(128 + tempColor),0,int(128-tempColor))
     
     else:
         tempColor = (-1*temperature) * 16
         if(tempColor>127):
             tempColor = 127
         
-        tempColor = Color(128 - tempColor,0,128 + tempColor)
+        tempColor = Color(int(128 - tempColor),0,int(128 + tempColor))
         
     setColor(strip, tempColor, 0)
     
