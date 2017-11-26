@@ -1,7 +1,7 @@
 from weatherHelper import *
 from neopixel import *
 from lowLevel import *
-import thread 
+import threading
 
 # LED strip configuration:
 LED_COUNT      = 120      # Number of LED pixels.
@@ -59,6 +59,12 @@ while(1):
         print("Showing Temperature")
         showTemp(strip, temperature)
         
+    time.sleep(10)
+    print("Currently running threads:")
+    print(threading.enumerate())
+    
+    print("Exiting thread")
+    Thread1.exit()
     time.sleep(60)
 
 

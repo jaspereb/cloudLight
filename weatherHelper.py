@@ -3,6 +3,7 @@ from lowLevel import *
 import json
 import time
 import datetime
+import threading
 
 #Returns a weather state (see below), temperature and an intensity
 #The ranges for intensity are:
