@@ -1,7 +1,7 @@
 from weatherHelper import *
 from neopixel import *
 from lowLevel import *
-import thread 
+import threading
 
 # LED strip configuration:
 LED_COUNT      = 120      # Number of LED pixels.
@@ -31,34 +31,56 @@ strip.begin()
 #3 - storms
 #4 - extreme 
 
-weatherState = 4
+weatherState = 0
 oldWeatherState = weatherState
 intensity = 0
 
-while(1):
-#    [weatherState, intensity, temperature] = getWeather()
-#    if(oldWeatherState != weatherState):
-#        goDark(strip)
-#    
-    
-    if(weatherState == 4):
-        print("Showing Extreme")
-        cloudThread = animationThread(1, "Thread1", strip, "extreme", intensity)
-        cloudThread.start()
-        showExtreme(strip)
-    elif(weatherState == 3):
-        print("Showing Storms")
-        showStorms(strip, intensity)
-    elif(weatherState == 2):
-        print("Showing Weird Weather")
-        showWeird(strip)
-    elif(weatherState == 1):
-        print("Showing Rain")
-        showRain(strip, intensity)
-    elif(weatherState == 0):
-        print("Showing Temperature")
-        showTemp(strip, temperature)
+def flashRed(strip):
+    while(1):
+        setColor(strip, Color(255,0,0),0)
+        time.sleep(0.2)    
+        goDark(strip)
+        time.sleep(0.2)
         
-    time.sleep(60)
+    #[weatherState, intensity, temperature] = getWeather()
+    #if(oldWeatherState != weatherState):
+     #   goDark(strip)
+    
+class animationThread (threading.Thread):
+    def __init__(self, threadID, name, strip, animation, intensity):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.strip = strip
+        self.animation = animation
+        self.intensity = intensity
+        
+    def run(self):
+        print("Starting thread " + self.name)
+        showAnimation(self.strip, self.animation, self.intensity)        
+        
+def showAnimation(strip, animation, intensity):
+    if(animation == "lightning"):
+        print("Lightning thread")
+    elif(animation == "rain"):
+        print("Rain thread")
+    else:
+        print("Unknown Animation")
+
+
+
+animation = "rain"
+intensity = 1
+    
+print("Starting background flash")
+cloudThread = animationThread(1, "Thread1", strip, animation, intensity)
+cloudThread.start()
+
+#thread.start_new_thread(flashRed, (strip, ))
+
+while(1):
+    print("Running main loop")
+    time.sleep(1)
+
 
 

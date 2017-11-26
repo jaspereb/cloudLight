@@ -136,6 +136,35 @@ def showTemp(strip,temperature):
         
     setColor(strip, tempColor, 0)
     
-
-    
+class animationThread (threading.Thread):
+    def __init__(self, threadID, name, strip, animation, intensity):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.strip = strip
+        self.animation = animation
+        self.intensity = intensity
         
+    def run(self):
+        print("Starting thread " + self.name)
+        showAnimation(self.strip, self.animation, self.intensity)
+    
+def showAnimation(strip, animation, intensity):
+    if(animation == "lightning"):
+        print("Lightning thread")
+    elif(animation == "rain"):
+        print("Rain thread")
+    elif(animation == "extreme"):
+        print("Extreme thread")
+        setColor(strip,Color(0,0,0), 0)
+        while(1):
+            time.sleep(0.5)
+            for red in range(0,255,2):
+                setColor(strip,Color(red,0,0), 0)
+                time.sleep(0.001)
+            for red in range (254,0, -2):
+                setColor(strip,Color(red,0,0), 0)
+                time.sleep(0.001)
+    
+    else:
+        print("Unknown Animation thread")
