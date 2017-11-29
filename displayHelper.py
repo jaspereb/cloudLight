@@ -2,6 +2,8 @@ import cloud
 import time
 import threading
 from itertools import chain
+from neopixel import *
+
 
 # Define functions which animate LEDs in various ways.
 def colorWipe(color, wait_ms=50):

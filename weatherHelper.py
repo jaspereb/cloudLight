@@ -3,6 +3,8 @@ import datetime
 from urllib2 import Request, urlopen, URLError
 from displayHelper import *
 import json
+import time
+from neopixel import *
 
 def getWeather():
     #For reference
@@ -77,42 +79,57 @@ def getWeather():
     print('Max Temp Predicted: ' + str(temp))
     temperature = temp - cloud.averages[monthNum]
     
-    return weatherState, intensity, temperature
+    states = ['clear', 'rain', 'weird', 'storms', 'extreme']
+    cloud.weatherState = states[weatherState]
+    cloud.intensity = intensity
+    cloud.temperature = temperature
          
-# Weather Display Functions -------------
-def showExtreme(strip):
+# -------------------------  Weather Display Functions -----------------------
+def showExtreme():
+    while(cloud.weatherState == 'extreme'):
+        for red in range(0,255,2):
+            setColor(Color(red,0,0))
+            time.sleep(0.001)
+        for red in range (254,0, -2):
+            setColor(Color(red,0,0))
+            time.sleep(0.001)
     
-    setColor(strip, Color(255,0,0),0)
-    time.sleep(0.5)
-    goDark(strip)
-    time.sleep(0.5)
-    
-def showRain(strip,intensity):
+def showRain():
+    print("Displaying rain")
+    setColor(cloud.blue)
     return
     
-def showStorms(strip,intensity):
+def showWeird():
+    setColor(cloud.green)
     return
     
-def showTemp(strip,temperature):
-    print('Displaying temperature difference of: ' + str(temperature))
-    if(temperature > 0):
-        tempColor = temperature * 16
+def showStorms():
+    setColor(cloud.red)
+    return
+    
+def showTemp():
+    print('Displaying temperature difference of: ' + str(cloud.temperature))
+    if(cloud.temperature > 0):
+        tempColor = cloud.temperature * 16
         if(tempColor>127):
             tempColor = 127
         
         tempColor = Color(int(128 + tempColor),0,int(128-tempColor))
     
     else:
-        tempColor = (-1*temperature) * 16
+        tempColor = (-1*cloud.temperature) * 16
         if(tempColor>127):
             tempColor = 127
         
         tempColor = Color(int(128 - tempColor),0,int(128 + tempColor))
         
-    setColor(strip, tempColor, 0)
+    setColor(tempColor)
     
+    
+    
+    # =================== multithreading example code =======================
 class animationThread (threading.Thread):
-    def __init__(self, threadID, name, strip, animation, intensity):
+    def __init__(self, threadID, name,  animation, intensity):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
@@ -122,9 +139,9 @@ class animationThread (threading.Thread):
         
     def run(self):
         print("Starting thread " + self.name)
-        showAnimation(self.name, self.strip, self.animation, self.intensity)
+        showAnimation(self.name, self. self.animation, self.intensity)
     
-def showAnimation(threadName, strip, animation, intensity):
+def showAnimation(threadName,  animation, intensity):
 
     if(animation == "lightning"):
         print("Lightning thread")
@@ -132,7 +149,7 @@ def showAnimation(threadName, strip, animation, intensity):
         print("Rain thread")
     elif(animation == "extreme"):
         print("Extreme thread")
-        setColor(strip,Color(0,0,0), 0)
+        setColor(Color(0,0,0), 0)
         while(1):
             if(stopAnimation):
                 print("killing animation")
@@ -140,10 +157,10 @@ def showAnimation(threadName, strip, animation, intensity):
                 
             time.sleep(0.5)
             for red in range(0,255,2):
-                setColor(strip,Color(red,0,0), 0)
+                setColor(Color(red,0,0), 0)
                 time.sleep(0.001)
             for red in range (254,0, -2):
-                setColor(strip,Color(red,0,0), 0)
+                setColor(Color(red,0,0), 0)
                 time.sleep(0.001)
     
     else:
