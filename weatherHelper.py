@@ -96,34 +96,40 @@ def showExtreme():
     
 def showRain():
     print("Displaying rain")
-    setColor(cloud.blue)
-    return
+    while(cloud.weatherState == 'rain' and cloud.mode == 'weather'):
+        setColor(cloud.blue)
+        time.sleep(10)
     
 def showWeird():
-    setColor(cloud.green)
-    return
+    while(cloud.weatherState == 'weird' and cloud.mode == 'weather'):
+        setColor(cloud.green)
+        time.sleep(10)
     
 def showStorms():
-    setColor(cloud.red)
-    return
+    while(cloud.weatherState == 'storms' and cloud.mode == 'weather'):
+        setColor(cloud.red)
+        time.sleep(10)
+
     
 def showTemp():
     print('Displaying temperature difference of: ' + str(cloud.temperature))
-    if(cloud.temperature > 0):
-        tempColor = cloud.temperature * 16
-        if(tempColor>127):
-            tempColor = 127
+    while(cloud.weatherState == 'clear' and cloud.mode == 'weather'):
+        if(cloud.temperature > 0):
+            tempColor = cloud.temperature * 16
+            if(tempColor>127):
+                tempColor = 127
+            
+            tempColor = Color(int(128 + tempColor),0,int(128-tempColor))
         
-        tempColor = Color(int(128 + tempColor),0,int(128-tempColor))
-    
-    else:
-        tempColor = (-1*cloud.temperature) * 16
-        if(tempColor>127):
-            tempColor = 127
-        
-        tempColor = Color(int(128 - tempColor),0,int(128 + tempColor))
-        
-    setColor(tempColor)
+        else:
+            tempColor = (-1*cloud.temperature) * 16
+            if(tempColor>127):
+                tempColor = 127
+            
+            tempColor = Color(int(128 - tempColor),0,int(128 + tempColor))
+            
+        setColor(tempColor)
+        time.sleep(10)
     
     
     

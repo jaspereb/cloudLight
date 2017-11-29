@@ -53,9 +53,10 @@ mode = 'weather'
 # 'off' turns the lights off
 
 brightness = 0.9
-#[0-1] float which adjusts the relative brightness of all display functions
+#[0-1] float which adjusts the relative brightness of the various manual mode functions
 
 color = red
+brightColor = red
 #Only applies to the 'color' mode
 
 alarmStart = [8, 20];

@@ -55,13 +55,19 @@ def theaterChase(color, wait_ms=50, iterations=10):
 def wheel(pos):
     """Generate rainbow colors across 0-255 positions."""
     if pos < 85:
-        return Color(pos * 3, 255 - pos * 3, 0)
+        color = Color(pos * 3, 255 - pos * 3, 0)
+        color = brightAdjust(color)
+        return color
     elif pos < 170:
         pos -= 85
-        return Color(255 - pos * 3, 0, pos * 3)
+        color = Color(255 - pos * 3, 0, pos * 3)
+        color = brightAdjust(color)
+        return color
     else:
         pos -= 170
-        return Color(0, pos * 3, 255 - pos * 3)
+        color = Color(0, pos * 3, 255 - pos * 3)
+        color = brightAdjust(color)
+        return color
 
 def rainbow(wait_ms=20, iterations=1):
     """Draw rainbow that fades across all pixels at once."""
@@ -69,6 +75,15 @@ def rainbow(wait_ms=20, iterations=1):
         for i in range(cloud.strip.numPixels()):
             cloud.strip.setPixelColor(i, wheel((i+j) & 255))
         cloud.strip.show()
+        time.sleep(wait_ms/1000.0)
+        
+def showRainbow(wait_ms=20, iterations=1):
+    while(cloud.mode == 'rainbow'):
+        """Draw rainbow that fades across all pixels at once."""
+        for j in range(256*iterations):
+            for i in range(cloud.strip.numPixels()):
+                cloud.strip.setPixelColor(i, wheel((i+j) & 255))
+            cloud.strip.show()
         time.sleep(wait_ms/1000.0)
 
 def rainbowCycle(wait_ms=20, iterations=5):
@@ -92,3 +107,17 @@ def theaterChaseRainbow(wait_ms=50):
 
 def goDark():
     setColor(Color(0,0,0),0)
+    
+def brightAdjust(color):
+    right = (color&0b11111111)
+    color = color>>8    
+    mid = (color&0b11111111)
+    color = color>>8
+    left = (color&0b11111111)
+    
+    right = int(right*cloud.brightness)
+    mid = int(mid*cloud.brightness)
+    left = int(left*cloud.brightness)
+    
+    color = Color(left, mid, right)
+    return color

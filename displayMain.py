@@ -31,9 +31,11 @@ def displayMain():
             print("Running in rain mode")
         elif(cloud.mode == 'rainbow'):
             print("Running in rainbow mode")
+            showRainbow()
         elif(cloud.mode == 'color'):
             print("Running in color mode")
-            setColor(cloud.color,0)
+            setColor(brightAdjust(cloud.color),0)
+            time.sleep(5)
         elif(cloud.mode == 'off'):
             print("Cloud is Off")
             goDark()
