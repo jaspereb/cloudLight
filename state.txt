@@ -1,0 +1,1 @@
+{"alarmStart": [8, 20], "color": "green", "brightness": "medium", "mode": "rainbow", "alarmStop": [8, 40], "brightColor": 16711680}

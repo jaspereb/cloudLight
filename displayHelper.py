@@ -3,6 +3,7 @@ import time
 import threading
 from itertools import chain
 from neopixel import *
+import json
 
 
 # Define functions which animate LEDs in various ways.
@@ -36,10 +37,29 @@ def colorSegment(segment, color):
         print "Incorrect segment, use 'left' 'mid' 'right'"
 
 def setColor(color, wait_ms=0):
-        for i in range(cloud.strip.numPixels()):
-                cloud.strip.setPixelColor(i, color)
-                time.sleep(wait_ms/1000.0)
-        cloud.strip.show()
+    #Decode colours
+    if(color == 'red'):
+        color = Color(255,0,0)
+    elif(color == 'green'):
+        color = Color(0,255,0)
+    elif(color == 'blue'):
+        color = Color(0,0,255)
+    elif(color == 'white'):
+        color = Color(150,255,220)
+    elif(color == 'pink'):
+        color = Color(0,255,0)
+    elif(color == 'purple'):
+        color = Color(0,255,0)
+    elif(color == 'yellow'):
+        color = Color(0,255,0)
+    elif(color == 'orange'):
+        color = Color(0,255,0)
+        
+    color = brightAdjust(color)
+    for i in range(cloud.strip.numPixels()):
+            cloud.strip.setPixelColor(i, color)
+            time.sleep(wait_ms/1000.0)
+    cloud.strip.show()
 
 def theaterChase(color, wait_ms=50, iterations=10):
     """Movie theater light style chaser animation."""
@@ -121,3 +141,14 @@ def brightAdjust(color):
     
     color = Color(left, mid, right)
     return color
+
+def updateState():
+    with open('state.txt', 'r') as infile:  
+        data = json.load(infile)
+        
+    cloud.mode = data['mode']
+    cloud.brightness = data['brightness']
+    cloud.color = data['color']
+    cloud.brightColor = data['brightColor']
+    cloud.alarmStart = data['alarmStart']
+    cloud.alarmStop = data['alarmStop']

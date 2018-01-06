@@ -5,6 +5,7 @@ from displayHelper import *
 import json
 import time
 from neopixel import *
+from random import *
 
 def getWeather():
     #For reference
@@ -75,7 +76,7 @@ def getWeather():
         else:
             print("-----Unrecognised Weather!-----")
             
-    monthNum = datetime.datetime.now().month
+    monthNum = datetime.datetime.now().month -1 #Minus 1 for zero indexed list
     print('Max Temp Predicted: ' + str(temp))
     temperature = temp - cloud.averages[monthNum]
     
@@ -97,8 +98,13 @@ def showExtreme():
 def showRain():
     print("Displaying rain")
     while(cloud.weatherState == 'rain' and cloud.mode == 'weather'):
-        setColor(cloud.blue)
-        time.sleep(10)
+        setColor(cloud.weakBlue)
+        i = randint(1,cloud.strip.numPixels())
+        for n in range(255,50,-20):
+            cloud.strip.setPixelColor(i, Color(0,0,n))
+            time.sleep(0.001)
+            cloud.strip.show()
+        time.sleep(5)
     
 def showWeird():
     while(cloud.weatherState == 'weird' and cloud.mode == 'weather'):
@@ -129,7 +135,7 @@ def showTemp():
             tempColor = Color(int(128 - tempColor),0,int(128 + tempColor))
             
         setColor(tempColor)
-        time.sleep(10)
+        time.sleep(5)
     
     
     
@@ -142,10 +148,12 @@ class animationThread (threading.Thread):
         self.strip = strip
         self.animation = animation
         self.intensity = intensity
+        self.stopper = stopper
         
     def run(self):
         print("Starting thread " + self.name)
         showAnimation(self.name, self. self.animation, self.intensity)
+        
     
 def showAnimation(threadName,  animation, intensity):
 
