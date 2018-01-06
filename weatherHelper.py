@@ -97,14 +97,26 @@ def showExtreme():
     
 def showRain():
     print("Displaying rain")
-    while(cloud.weatherState == 'rain' and cloud.mode == 'weather'):
+    
+    pixels = []
+    values = [1,65,129,193,255]
+    
+    while(len(pixels) < 5):
+        pixels.append(randint(0,cloud.strip.numPixels()))
+        
+    while(cloud.mode == 'rain' or (cloud.weatherState == 'rain' and cloud.mode == 'weather')):
         setColor(cloud.weakBlue)
-        i = randint(1,cloud.strip.numPixels())
-        for n in range(255,50,-20):
-            cloud.strip.setPixelColor(i, Color(0,0,n))
+        for i in range(0,len(pixels)):
+            if(values[i] < 2):
+                values.pop(i)
+                pixels.pop(i)
+                values.append(255)
+                pixels.append(randint(0,cloud.strip.numPixels()))
+            values[i] = values[i] -1
+            cloud.strip.setPixelColor(pixels[i], brightAdjust(Color(0,0,values[i])))
             time.sleep(0.001)
             cloud.strip.show()
-        time.sleep(5)
+        
     
 def showWeird():
     while(cloud.weatherState == 'weird' and cloud.mode == 'weather'):
@@ -112,10 +124,26 @@ def showWeird():
         time.sleep(10)
     
 def showStorms():
-    while(cloud.weatherState == 'storms' and cloud.mode == 'weather'):
-        setColor(cloud.red)
-        time.sleep(10)
+    lightningRate = 0.001 #a lower value will lead to lower lightning frequency    
+    
+    pixels = []
+    values = []
+    
+    while(cloud.mode == 'lightning' or (cloud.weatherState == 'storms' and cloud.mode == 'weather')):
+        if(random() < lightningRate):
+            pixels.append(randint(0,cloud.strip.numPixels()))
+            values.append(randint(51,255))
 
+        for i in range(0,len(pixels)):
+            if(values[i] < 5):
+                values.pop(i)
+                pixels.pop(i)
+            values[i] = values[i] - 5
+            if(pixels[i]%3 == 0 and values[i] == 50):
+                values[i] = randint(51,255)
+            cloud.strip.setPixelColor(pixels[i], brightAdjust(Color(values[i],values[i],values[i])))
+        cloud.strip.show()
+#        time.sleep(0.001)
     
 def showTemp():
     print('Displaying temperature difference of: ' + str(cloud.temperature))

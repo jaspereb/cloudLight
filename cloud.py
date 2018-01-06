@@ -21,7 +21,7 @@ green = Color(0,255,0)
 blue = Color(0,0,255)
 black = Color(0,0,0)
 white = Color(150,255,220)
-weakBlue = Color(0,0,50)
+weakBlue = Color(0,0,20)
 
 #Monthly average temperatures in deg C
 averages = [26,26,25,23,20,18,17,18,20,22,24,26]

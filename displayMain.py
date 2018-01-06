@@ -45,6 +45,7 @@ def displayMain():
             print("Running in alarm mode")
         elif(cloud.mode == 'lightning'):
             print("Running in lightning mode")
+            showStorms()
         elif(cloud.mode == 'rain'):
             print("Running in rain mode")
             showRain()
