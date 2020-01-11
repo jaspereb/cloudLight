@@ -1,4 +1,0 @@
-setColor is (GRB) format
-150, 255, 220 is a nice white
-255,255,255 comes out too blue
-

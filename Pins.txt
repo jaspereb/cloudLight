@@ -1,0 +1,5 @@
+7 - IR pwr out
+4 - IR signal
+11 - led signal
+
+120 pix strip

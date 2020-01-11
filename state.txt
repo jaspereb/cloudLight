@@ -1,1 +1,0 @@
-{"brightness": "full", "color": 16711680, "alarmStart": [8, 20], "mode": "lightning", "alarmStop": [8, 40], "brightColor": 16711680}
