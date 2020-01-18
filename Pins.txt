@@ -3,3 +3,25 @@
 11 - led signal
 
 120 pix strip
+
+
+HEX Codes for IR
+FF6897 - 1
+FF9867 - 2
+FFB04F - 3
+FF30CF - 4
+FF18E7 - 5
+FF7A85 - 6
+FF10EF - 7
+FF38C7 - 8
+FF5AA5 - 9
+FF4AB5 - 0
+
+FF42BD - *
+FF52AD - #
+
+FFA857 - down
+FFC23D - right
+FF629D - up
+FF22DD - left
+FF02FD - ok

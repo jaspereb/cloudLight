@@ -32,3 +32,7 @@ Right - Increase Cycle Time
  
 # Libraries
 Both IR and neopixels require interrupts so using them together is tricky. That's why the refactored IRLib2 library is needed. 
+
+# Tricks
+* The IR library will read a zero if the signal from the remote is only partially received (out of range)
+* It needs delay statements to perform the reads

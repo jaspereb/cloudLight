@@ -4,8 +4,8 @@
 #include "IRLibAll.h"
 
 // Default values
-#define DEFAULT_MODE 0 //Corresponds to key input numbers
 #define DEFAULT_BRIGHTNESS 255 //Out of 255
+#define debounceThresh 20 //In ms
 
 #define LED_PIN    11
 #define IR_PIN 4
@@ -16,7 +16,10 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 IRrecv myReceiver(IR_PIN);
 IRdecode myDecoder;   
 
-//decode_results results;
+int brightness = DEFAULT_BRIGHTNESS;
+int setPos = 255;
+unsigned long debounceTime = millis();
+int mode = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -33,19 +36,153 @@ void setup() {
 
 
 void loop() {
-  // Fill along the length of the strip in various colors...
-  /*
-  colorWipe(strip.Color(255,   0,   0), 50); // Red
-  colorWipe(strip.Color(  0, 255,   0), 50); // Green
-  colorWipe(strip.Color(  0,   0, 255), 50); // Blue
+  unsigned long setColor;
+  
+  if (myReceiver.getResults()) {
+    myDecoder.decode();           //Decode it
+    myReceiver.enableIRIn();      //Restart receiver
+    Serial.println(myDecoder.value, HEX);
+  }
 
-  // Do a theater marquee effect in various colors...
-  theaterChase(strip.Color(127, 127, 127), 50); // White, half brightness
-  theaterChase(strip.Color(127,   0,   0), 50); // Red, half brightness
-  theaterChase(strip.Color(  0,   0, 127), 50); // Blue, half brightness
-*/
+  // ========================================= //
+  //            Get keypress inputs            //
+  // ========================================= //
+  if(myDecoder.value == 0xFF4AB5){
+    mode = 0;
+  }
+  else if(myDecoder.value == 0xFF6897){ //1 key
+    mode = 1;
+  }
+  //Solid color mode
+  else if(myDecoder.value == 0xFF9867){ //2 key
+    mode = 2;
+  }
+  
+  else if(myDecoder.value == 0xFFB04F){ //3 key
+    mode = 3;
+  }
+  
+  else if(myDecoder.value == 0xFF30CF){ //4 key
+    mode = 4;
+  }
+  
+  else if(myDecoder.value == 0xFF18E7){ //5 key
+    mode = 5;
+  }
+  
+  else if(myDecoder.value == 0xFF7A85){ //6 key
+    mode = 6;
+  }
+  
+  else if(myDecoder.value == 0xFF10EF){ //7 key  
+  }
+  
+  else if(myDecoder.value == 0xFF38C7){ //8 key
+  }
+  
+  else if(myDecoder.value == 0xFF5AA5){ //9 key
+  }
+  
+  else if(myDecoder.value == 0xFF52AD){ //hash key
+  }
+  
+  else if(myDecoder.value == 0xFF42BD){ //star key
+  }
+  
+  else if(myDecoder.value == 0xFF22DD){ //left key
+    if(millis()-debounceTime > debounceThresh){
+      if(setPos > 15){
+        setPos = setPos - 15;
+      }
+      else{setPos = 255;}
+    }
+    debounceTime = millis();
+  }
+  
+  else if(myDecoder.value == 0x0FF629D){ //up key
+    if(millis()-debounceTime > debounceThresh){
+      if(brightness < (255-20)){
+        brightness = brightness + 20;
+      }
+      else{brightness =  255;}
+      strip.setBrightness(brightness);
+      strip.show();
+    }
+    debounceTime = millis();
+  }
+  
+  else if(myDecoder.value == 0xFFC23D){ //right key
+    if(millis()-debounceTime > debounceThresh){
+      if(setPos < (255-15)){
+        setPos = setPos + 15;
+      }
+      else{setPos = 0;}
+    }
+    debounceTime = millis();
+  }
+  
+  else if(myDecoder.value == 0xFFA857){ //down key
+    if(millis()-debounceTime > debounceThresh){
+      if(brightness > 21){
+        brightness = brightness - 20;
+      }
+      else{//Issues with losing the color if it's turned to zero
+        brightness = 1;
+      }
+      strip.setBrightness(brightness);
+      strip.show();
+    }
+    debounceTime = millis();
+  }
+  
+  else if(myDecoder.value == 0xFF02FD){ //ok key
+  }
 
-  for(int i=0; i<255; i+=3) {
+  // ========================================= //
+  //                Mode Logic                 //
+  // ========================================= //
+
+  if(mode == 0){//Off
+    strip.fill(strip.Color(0,   0,   0));
+    strip.setBrightness(0);
+    strip.show();
+    Serial.println("Cloud Off");
+    delay(200);
+  }
+
+  else if (mode == 1){//Lamp mode
+    strip.setBrightness(brightness);
+    strip.fill(strip.Color(255,   255,   255));    
+    strip.show();
+    delay(100); //Delay to read IR
+  }
+
+  else if (mode == 2){//Solid Color
+    strip.setBrightness(brightness);
+    setColor = wheel(setPos);
+    strip.fill(setColor);  
+    strip.show();
+    delay(100); //Delay to read IR
+  }
+
+  else if (mode == 3){//Color Gradient
+    strip.fill(strip.Color(255,   0,   0));
+    strip.show();
+    delay(100);
+  }
+
+  else if (mode == 4){//Relax
+  }
+
+  else if (mode == 5){//Lightning
+  }
+
+  else if (mode == 6){//Disco
+  }
+
+  
+  
+  /*for(int i=0; i<255; i+=3) {
     colorWipe(strip.Color(255-i,   0,   i), 0);
     
   }
@@ -60,7 +197,13 @@ void loop() {
   }
   delay(1000);  
   //theaterChaseRainbow(200); // Rainbow-enhanced theaterChase variant
+  */
 }
+
+
+
+
+
 
 
 // Some functions of our own for creating animated effects -----------------
@@ -138,5 +281,24 @@ void theaterChaseRainbow(int wait) {
       delay(wait);                 // Pause for a moment
       firstPixelHue += 65536 / 90; // One cycle of color wheel over 90 frames
     }
+  }
+}
+
+//Generate rainbow colors across 0-255 positions
+unsigned long wheel(unsigned int WheelPos){
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85)
+  {
+    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  else if(WheelPos < 170)
+  {
+      WheelPos -= 85;
+      return strip.Color(0, WheelPos * 3, 255 - (WheelPos * 3));
+  }
+  else
+  {
+      WheelPos -= 170;
+      return strip.Color(WheelPos * 3, 255 - (WheelPos * 3), 0);
   }
 }
