@@ -17,9 +17,13 @@ IRrecv myReceiver(IR_PIN);
 IRdecode myDecoder;   
 
 int brightness = DEFAULT_BRIGHTNESS;
-int setPos = 255;
+int setPos = 128;
+int wipePos = 0;
 unsigned long debounceTime = millis();
 int mode = 0;
+
+//Cloud sections
+
 
 void setup() {
   Serial.begin(9600);
@@ -27,33 +31,193 @@ void setup() {
   myReceiver.enableIRIn(); // Start the receiver
   
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip.show();            // Turn OFF all pixels
   strip.setBrightness(DEFAULT_BRIGHTNESS); // Set BRIGHTNESS to about 1/5 (max = 255)
-
+  strip.show();
+  
   pinMode(IR_PWR, OUTPUT);
   digitalWrite(IR_PWR, HIGH);
 }
 
 
 void loop() {
-  unsigned long setColor;
+  long unsigned int setColor;
+  checkIR();
   
+  // ========================================= //
+  //                Mode Logic                 //
+  // ========================================= //
+
+  if(mode == 0){//Off
+    strip.fill(strip.Color(0,   0,   0));
+    strip.setBrightness(0);
+    strip.show();
+    Serial.println("Cloud Off");
+    delay(100);
+  }
+
+  else if (mode == 1){//Lamp mode
+    strip.setBrightness(brightness);
+    strip.fill(strip.Color(255,   255,   255));    
+    strip.show();
+  }
+
+  else if (mode == 2){//Solid Color
+    strip.setBrightness(brightness);
+    setColor = wheel(setPos);
+    strip.fill(setColor);  
+    strip.show();
+  }
+
+  else if (mode == 3){//Pulsing White
+    strip.fill(strip.Color(255,   255,   255));    
+    strip.show();
+    while(mode == 3){
+      for(int i=200; i>1; i-=1) {
+        strip.setBrightness(i);
+        strip.show();
+        checkIR();
+        if(mode != 3){break;};
+      }
+      for(int i=1; i<200; i+=1) {
+        strip.setBrightness(i);
+        strip.show();
+        checkIR();
+        if(mode != 3){break;};
+      }
+    }
+    strip.setBrightness(brightness);
+    strip.show();
+  }
+
+  else if (mode == 4){//Relax
+    for(int i=0; i<255; i+=1) {
+      strip.fill(wheel(i));
+      strip.show();
+      checkIR();
+      delay(500);
+      if(mode != 4){
+        break;
+      }
+    }
+  }
+
+  else if (mode == 5){//Lightning
+    int lightningDelay = setPos*3;
+    switch(random(1,4)){
+      case 1:
+        thunderburst(strip.Color(255,255,255),mode);
+        delay(random(10,500));
+        break;
+       
+      case 2:
+        crack(strip.Color(255,255,255));
+        delay(random(50,250));
+        checkIR();
+        break;
+        
+      case 3:
+        rolling(strip.Color(255,255,255),mode);
+        break;
+      
+    }
+    delay(random(lightningDelay,lightningDelay*5));
+  }
+
+  else if (mode == 6){//Disco
+    disco(mode);
+  }
+
+  else if (mode == 7){//Acid
+    switch(random(1,4)){
+      case 1:
+        thunderburst(wheel(random(0,255)),mode);
+        delay(random(10,500));
+        break; 
+      case 2:
+        crack(wheel(random(0,255)));
+        delay(random(50,250));
+        checkIR();
+        break;        
+      case 3:
+        rolling(wheel(random(0,255)),mode);
+        break;
+    }
+  }
+
+  else if (mode == 8){//Strobe!
+    strip.fill(strip.Color(255,   255,   255)); 
+    strip.show();
+    delay(30);
+    strip.fill(strip.Color(0,   0,   0)); 
+    strip.show();
+    delay(setPos*3);
+  }
+
+  
+  
+  /*for(int i=0; i<255; i+=3) {
+    colorWipe(strip.Color(255-i,   0,   i), 0);
+    
+  }
+  colorWipe(strip.Color(0,   0,   0), 50); // off
+  //rainbow(10);             // Flowing rainbow cycle along the whole strip
+  Serial.println("Finished Rainbow");
+  if (myReceiver.getResults()) {
+    myDecoder.decode();           //Decode it
+    myReceiver.enableIRIn();      //Restart receiver
+    Serial.println(myDecoder.value, HEX);
+    
+  }
+  delay(1000);  
+  //theaterChaseRainbow(200); // Rainbow-enhanced theaterChase variant
+  */
+}
+
+
+
+
+
+
+
+
+
+//Generate rainbow colors across 0-255 positions
+unsigned long wheel(unsigned int WheelPos){
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85)
+  {
+    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  else if(WheelPos < 170)
+  {
+      WheelPos -= 85;
+      return strip.Color(0, WheelPos * 3, 255 - (WheelPos * 3));
+  }
+  else
+  {
+      WheelPos -= 170;
+      return strip.Color(WheelPos * 3, 255 - (WheelPos * 3), 0);
+  }
+}
+
+  // ========================================= //
+  //            Get keypress inputs            //
+  // ========================================= //
+  
+void checkIR(void){
+  delay(100);
   if (myReceiver.getResults()) {
     myDecoder.decode();           //Decode it
     myReceiver.enableIRIn();      //Restart receiver
     Serial.println(myDecoder.value, HEX);
   }
-
-  // ========================================= //
-  //            Get keypress inputs            //
-  // ========================================= //
+  
   if(myDecoder.value == 0xFF4AB5){
     mode = 0;
   }
   else if(myDecoder.value == 0xFF6897){ //1 key
     mode = 1;
   }
-  //Solid color mode
   else if(myDecoder.value == 0xFF9867){ //2 key
     mode = 2;
   }
@@ -67,17 +231,22 @@ void loop() {
   }
   
   else if(myDecoder.value == 0xFF18E7){ //5 key
+    setPos = 10; //Entering lightning mode
     mode = 5;
   }
   
   else if(myDecoder.value == 0xFF7A85){ //6 key
+    setPos = 50; //Entering disco mode
     mode = 6;
   }
   
-  else if(myDecoder.value == 0xFF10EF){ //7 key  
+  else if(myDecoder.value == 0xFF10EF){ //7 key 
+    mode = 7; 
   }
   
   else if(myDecoder.value == 0xFF38C7){ //8 key
+    setPos = 10; //Entering strobe mode
+    mode = 8;
   }
   
   else if(myDecoder.value == 0xFF5AA5){ //9 key
@@ -137,77 +306,135 @@ void loop() {
   
   else if(myDecoder.value == 0xFF02FD){ //ok key
   }
-
-  // ========================================= //
-  //                Mode Logic                 //
-  // ========================================= //
-
-  if(mode == 0){//Off
-    strip.fill(strip.Color(0,   0,   0));
-    strip.setBrightness(0);
-    strip.show();
-    Serial.println("Cloud Off");
-    delay(200);
-  }
-
-  else if (mode == 1){//Lamp mode
-    strip.setBrightness(brightness);
-    strip.fill(strip.Color(255,   255,   255));    
-    strip.show();
-    delay(100); //Delay to read IR
-  }
-
-  else if (mode == 2){//Solid Color
-    strip.setBrightness(brightness);
-    setColor = wheel(setPos);
-    strip.fill(setColor);  
-    strip.show();
-    delay(100); //Delay to read IR
-  }
-
-  else if (mode == 3){//Color Gradient
-    strip.fill(strip.Color(255,   0,   0));
-    strip.show();
-    delay(100);
-  }
-
-  else if (mode == 4){//Relax
-  }
-
-  else if (mode == 5){//Lightning
-  }
-
-  else if (mode == 6){//Disco
-  }
-
-  
-  
-  /*for(int i=0; i<255; i+=3) {
-    colorWipe(strip.Color(255-i,   0,   i), 0);
-    
-  }
-  colorWipe(strip.Color(0,   0,   0), 50); // off
-  //rainbow(10);             // Flowing rainbow cycle along the whole strip
-  Serial.println("Finished Rainbow");
-  if (myReceiver.getResults()) {
-    myDecoder.decode();           //Decode it
-    myReceiver.enableIRIn();      //Restart receiver
-    Serial.println(myDecoder.value, HEX);
-    
-  }
-  delay(1000);  
-  //theaterChaseRainbow(200); // Rainbow-enhanced theaterChase variant
-  */
 }
 
+void disco(int startMode){
+  while(mode == startMode){
+    //Flash left half then right
+    unsigned long int lc = wheel(random(0,255));
+    unsigned long int rc = wheel(random(0,255));
+    
+    for(int i=0; i<20; i+=1) {
+      strip.setPixelColor(i, lc);
+    }
+    for(int i=60; i<100; i+=1) {
+      strip.setPixelColor(i, lc);
+    }
+    for(int i=21; i<60; i+=1) {
+      strip.setPixelColor(i, rc);
+    }
+    for(int i=100; i<LED_COUNT; i+=1) {
+      strip.setPixelColor(i, rc);
+    }
+    strip.show();
+    checkIR();
+    delay(setPos*3);
+  }
+  
+}
+  // ========================================= //
+  //             Lightning Methods             //
+  // ========================================= //
+  
+void rolling(long unsigned int color, int startMode){
+  int startPoint = random(10,LED_COUNT);
 
+  if(startPoint < LED_COUNT/2){
+    for(int offset=startPoint;offset<LED_COUNT;offset=offset+10){
+      for(int i=offset-10;i<offset+10;i++){
+        strip.fill(strip.Color(0,   0,   0));  
+        if(i > LED_COUNT){break;}
+        
+        if(random(0,100)>70){
+          strip.setPixelColor(i, color);
+        }
+        if(random(0,100)>80){//Randomly Skip Sections
+          offset = offset+25;
+        }
+        strip.show();
+      }
+      
+      delay(random(20,400));
+      checkIR();
+      if(mode != startMode){
+        return;
+      }
+    }
+  }
+  else{
+    for(int offset=startPoint;offset>0;offset=offset-10){
+      for(int i=offset-10;i<offset+10;i++){
+        strip.fill(strip.Color(0,   0,   0));  
+        if(i < 0){break;}
+        
+        if(random(0,100)>70){
+          strip.setPixelColor(i, color);
+        }
+        if(random(0,100)>80){//Randomly Skip Sections
+          offset = offset-25;
+        }
+        strip.show();
+      }
+      
+      delay(random(20,400));
+      checkIR();
+      if(mode != startMode){
+        return;
+      }
+    }  
+  }
+}
 
+void crack(long unsigned int color){
+   //turn everything white briefly
+   strip.fill(color); 
+   strip.show();
+   delay(random(10,100));
+   strip.fill(strip.Color(0,   0,   0)); 
+   strip.show();
+}
 
+void thunderburst(long unsigned int color, int startMode){
 
+  // this thunder works by lighting two random lengths
+  // of the strand from 10-20 pixels. 
+  int rs1 = random(0,LED_COUNT/2);
+  int rl1 = random(10,20);
+  int rs2 = random(rs1+rl1,LED_COUNT);
+  int rl2 = random(10,20);
+  
+  //repeat this chosen strands a few times, adds a bit of realism
+  for(int r = 0;r<random(2,8);r++){
+    
+    for(int i=0;i< rl1; i++){
+      strip.setPixelColor(i+rs1, color);
+    }
+    
+    if(rs2+rl2 < LED_COUNT){
+      for(int i=0;i< rl2; i++){
+        strip.setPixelColor(i+rs2, color);
+      }
+    }
+    
+    strip.show();
+    //stay illuminated for a set time
+    delay(random(10,50));
+    strip.fill(strip.Color(0,   0,   0)); 
+    strip.show();
+    delay(random(10,60));
+  }
+  
+  checkIR();
+  if(mode != startMode){
+    return;
+  }
+  delay(random(10,2000));
+}
 
-
-// Some functions of our own for creating animated effects -----------------
-
+  // ========================================= //
+  //             Example Methods             //
+  // ========================================= //
+ 
 // Fill strip pixels one after another with a color. Strip is NOT cleared
 // first; anything there will be covered pixel by pixel. Pass in color
 // (as a single 'packed' 32-bit value, which you can get by calling
@@ -281,24 +508,5 @@ void theaterChaseRainbow(int wait) {
       delay(wait);                 // Pause for a moment
       firstPixelHue += 65536 / 90; // One cycle of color wheel over 90 frames
     }
-  }
-}
-
-//Generate rainbow colors across 0-255 positions
-unsigned long wheel(unsigned int WheelPos){
-  WheelPos = 255 - WheelPos;
-  if(WheelPos < 85)
-  {
-    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  }
-  else if(WheelPos < 170)
-  {
-      WheelPos -= 85;
-      return strip.Color(0, WheelPos * 3, 255 - (WheelPos * 3));
-  }
-  else
-  {
-      WheelPos -= 170;
-      return strip.Color(WheelPos * 3, 255 - (WheelPos * 3), 0);
   }
 }
