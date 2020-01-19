@@ -18,16 +18,25 @@ It also has a timeout.
 
 # Button Assignment
 0 - Off
+
 1 - Lamp
+
 2 - Solid Colour
+
 3 - Colour Gradient
+
 4 - Relax
+
 5 - Lightning
+
 6 - Disco
 
 Up - Increase Brightness
+
 Down - Decrease Brightness
+
 Left - Decrease Cycle Time
+
 Right - Increase Cycle Time
  
 # Libraries
